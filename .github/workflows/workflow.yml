@@ -9,6 +9,8 @@ on:
 env:
   MONGO_DB_CONNECTION_URL: ${{ secrets.MONGO_DB_CONNECTION_URL }}
   MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
+  MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
+  MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
 
 jobs:
   run-script:
@@ -28,24 +30,25 @@ jobs:
         pip install -r requirements.txt 
 
     - name: Get the public IP of this runner
-        id: get_gh_runner_ip
-        shell: bash
-        run: |
-          echo "ip_address=$(curl https://checkip.amazonaws.com)" >> "$GITHUB_OUTPUT"
+      id: get_gh_runner_ip
+      run: echo "ip_address=$(curl https://checkip.amazonaws.com)" >> $GITHUB_ENV
 
-    - name: Setup MongoDB Atlas cli
+    - name: Setup MongoDB Atlas CLI
       uses: mongodb/atlas-github-action@v0.2.0
 
+    - name: Authenticate MongoDB Atlas CLI
+      run: |
+        atlas auth login --publicKey "${{ env.MONGODB_ATLAS_PUBLIC_KEY }}" --privateKey "${{ env.MONGODB_ATLAS_PRIVATE_KEY }}"
+
     - name: Add runner IP to MongoDB access list
-      shell: bash
       run: |
-        atlas accessLists create ${{ steps.get_gh_runner_ip.outputs.ip_address }} --type ipAddress --projectId ${{ env.MONGODB_ATLAS_PROJECT_ID }} --comment  "Temporary access for GH Action"  
-    
-    - name: Remove GH runner IP from MongDB access list
-      shell: bash
-      run: |
-        atlas accessLists delete ${{ steps.get_gh_runner_ip.outputs.ip_address }} --projectId ${{ env.MONGODB_ATLAS_PROJECT_ID }} --force
+        atlas accessLists create ${{ env.ip_address }} --type ipAddress --projectId ${{ env.MONGODB_ATLAS_PROJECT_ID }} --comment "Temporary access for GH Action"
 
     - name: Run Python script with secret
       run: |
         python macys_price_check.py
+
+    - name: Remove GH runner IP from MongoDB access list
+      if: always()
+      run: |
+        atlas accessLists delete ${{ env.ip_address }} --projectId ${{ env.MONGODB_ATLAS_PROJECT_ID }} --force
