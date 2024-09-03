@@ -49,14 +49,14 @@ jobs:
       run: |
         mkdir -p ${XDG_CONFIG_HOME:-~/.config}/atlascli
         cat <<EOF > ${XDG_CONFIG_HOME:-~/.config}/atlascli/config.toml
-    [default]
-    org_id = "${MONGODB_ATLAS_ORG_ID}"
-    output = "json"
-    private_api_key = "${MONGODB_ATLAS_PRIVATE_KEY}"
-    project_id = "${MONGODB_ATLAS_PROJECT_ID}"
-    public_api_key = "${MONGODB_ATLAS_PUBLIC_KEY}"
-    service = "cloud"
-    EOF
+        [default]
+        org_id = "${MONGODB_ATLAS_ORG_ID}"
+        output = "json"
+        private_api_key = "${MONGODB_ATLAS_PRIVATE_KEY}"
+        project_id = "${MONGODB_ATLAS_PROJECT_ID}"
+        public_api_key = "${MONGODB_ATLAS_PUBLIC_KEY}"
+        service = "cloud"
+        EOF
 
     - name: Add runner IP to MongoDB access list
       run: |
