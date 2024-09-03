@@ -1,0 +1,21 @@
+name: Price Check Workflow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run Python script with secret
+      env:
+        MY_SECRET_API_KEY: ${{ secrets.MY_SECRET_API_KEY }}
+      run: |
+        python macys_price_check.py
