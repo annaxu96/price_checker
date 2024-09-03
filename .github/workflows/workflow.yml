@@ -47,8 +47,8 @@ jobs:
 
     - name: Configure MongoDB Atlas CLI
       run: |
-        mkdir -p ~/.config/mongocli
-        cat <<EOF > ~/.config/mongocli/config.toml
+        mkdir -p ${XDG_CONFIG_HOME:-~/.config}/atlascli
+        cat <<EOF > ${XDG_CONFIG_HOME:-~/.config}/atlascli/config.toml
         [default]
         org_id = ${MONGODB_ATLAS_ORG_ID}
         output = 'json'
