@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  MONGO_DB_CONNECTION_URL: ${{ secrets.MONGO_DB_CONNECTION_URL }}
+  MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -23,10 +27,6 @@ jobs:
       run: |
         pip install -r requirements.txt 
 
-    - env:
-      MONGO_DB_CONNECTION_URL: ${{ secrets.MONGO_DB_CONNECTION_URL }}
-      MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
-      
     - name: Get the public IP of this runner
         id: get_gh_runner_ip
         shell: bash
