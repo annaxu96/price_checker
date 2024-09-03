@@ -36,10 +36,6 @@ jobs:
     - name: Setup MongoDB Atlas CLI
       uses: mongodb/atlas-github-action@v0.2.0
 
-    - name: Authenticate MongoDB Atlas CLI
-      run: |
-        atlas auth login --publicKey "${{ env.MONGODB_ATLAS_PUBLIC_KEY }}" --privateKey "${{ env.MONGODB_ATLAS_PRIVATE_KEY }}"
-
     - name: Add runner IP to MongoDB access list
       run: |
         atlas accessLists create ${{ env.ip_address }} --type ipAddress --projectId ${{ env.MONGODB_ATLAS_PROJECT_ID }} --comment "Temporary access for GH Action"
