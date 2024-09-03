@@ -25,6 +25,6 @@ jobs:
 
     - name: Run Python script with secret
       env:
-        MY_SECRET_API_KEY: ${{ secrets.MY_SECRET_API_KEY }}
+        MONGO_DB_CONNECTION_URL: ${{ secrets.MONGO_DB_CONNECTION_URL }}
       run: |
         python macys_price_check.py
