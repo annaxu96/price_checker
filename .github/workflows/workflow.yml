@@ -11,6 +11,7 @@ env:
   MONGODB_ATLAS_PROJECT_ID: ${{ secrets.MONGODB_ATLAS_PROJECT_ID }}
   MONGODB_ATLAS_PUBLIC_KEY: ${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
   MONGODB_ATLAS_PRIVATE_KEY: ${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
+  MONGODB_ATLAS_ORG_ID: ${{ secrets.MONGODB_ATLAS_ORG_ID }}
 
 jobs:
   run-script:
@@ -24,6 +25,14 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
+  
+    - name: Cache pip dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
     - name: Install dependencies
       run: |
@@ -36,15 +45,22 @@ jobs:
     - name: Setup MongoDB Atlas CLI
       uses: mongodb/atlas-github-action@v0.2.0
 
-    - name: Set MongoDB Atlas CLI credentials
+    - name: Configure MongoDB Atlas CLI
       run: |
-        export MONGODB_ATLAS_PUBLIC_KEY=${{ secrets.MONGODB_ATLAS_PUBLIC_KEY }}
-        export MONGODB_ATLAS_PRIVATE_KEY=${{ secrets.MONGODB_ATLAS_PRIVATE_KEY }}
-        atlas auth login
+        mkdir -p ~/.config/mongocli
+        cat <<EOF > ~/.config/mongocli/atlas.yml
+        [default]
+        org_id = ${MONGODB_ATLAS_ORG_ID}
+        output = 'json'
+        private_api_key = ${MONGODB_ATLAS_PRIVATE_KEY}
+        project_id = ${MONGODB_ATLAS_PROJECT_ID}
+        public_api_key = ${MONGODB_ATLAS_PUBLIC_KEY}
+        service = 'cloud'
+        EOF
 
     - name: Add runner IP to MongoDB access list
       run: |
-        atlas accessLists create ${{ env.ip_address }} --type ipAddress --projectId ${{ env.MONGODB_ATLAS_PROJECT_ID }} --comment "Temporary access for GH Action"
+        atlas accessLists create ${{ env.ip_address }} --type ipAddress --profile="default" --comment "Temporary access for GH Action"
 
     - name: Run Python script with secret
       run: |
